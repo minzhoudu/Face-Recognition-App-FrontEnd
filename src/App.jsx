@@ -27,6 +27,7 @@ const app = new Clarifai.App({
 class App extends Component {
   state = {
     input: "",
+    imageUrl: "",
   };
   render() {
     return (
@@ -39,29 +40,27 @@ class App extends Component {
           onSubmit={this.onBtnSubmit}
           onInputChange={this.onChangeHandler}
         />
-        <FaceRecognition />
+        <FaceRecognition imageUrl={this.state.imageUrl} />
       </div>
     );
   }
   //handlers
   onChangeHandler = (event) => {
-    console.log(event.target.value);
+    this.setState({ input: event.target.value });
   };
 
   onBtnSubmit = () => {
-    app.models
-      .predict(
-        Clarifai.COLOR_MODEL,
-        "https://samples.clarifai.com/face-det.jpg"
-      )
-      .then(
-        function (response) {
-          console.log(response);
-        },
-        function (err) {
-          //code
-        }
-      );
+    this.setState({ imageUrl: this.state.input });
+    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input).then(
+      function (response) {
+        console.log(
+          response.outputs[0].data.regions[0].region_info.bounding_box
+        );
+      },
+      function (err) {
+        //code
+      }
+    );
   };
 }
 
