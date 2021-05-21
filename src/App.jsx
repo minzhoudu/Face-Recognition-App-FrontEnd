@@ -61,9 +61,15 @@ class App extends Component {
             />
           </div>
         ) : this.state.route === "signin" ? (
-          <SignIn onRouteChange={this.onRouteChange} />
+          <div>
+            <Logo />
+            <SignIn onRouteChange={this.onRouteChange} />
+          </div>
         ) : (
-          <Register onRouteChange={this.onRouteChange} />
+          <div>
+            <Logo />
+            <Register onRouteChange={this.onRouteChange} />
+          </div>
         )}
       </div>
     );
