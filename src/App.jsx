@@ -122,7 +122,8 @@ class App extends Component {
             .then((res) => res.json())
             .then((count) => {
               this.setState({ user: { ...this.state.user, entries: count } });
-            });
+            })
+            .catch(console.log);
         }
         this.displayFaceBoxHandler(this.calculateFaceLocationHandler(response));
       })
