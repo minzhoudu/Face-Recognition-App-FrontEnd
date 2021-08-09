@@ -38,7 +38,16 @@ class App extends Component {
     box: {},
     route: "signin",
     isSignedIn: false,
+    user: {
+      id: "",
+      name: "",
+      email: "",
+      entries: 0,
+      joined: "",
+    },
   };
+
+
   render() {
     return (
       <div className="App">
@@ -50,7 +59,10 @@ class App extends Component {
         {this.state.route === "home" ? (
           <div>
             <Logo />
-            <Rank />
+            <Rank
+              username={this.state.user.name}
+              entries={this.state.user.entries}
+            />
             <ImageLinkForm
               onSubmit={this.onBtnSubmit}
               onInputChange={this.onChangeHandler}
@@ -63,12 +75,26 @@ class App extends Component {
         ) : this.state.route === "signin" ? (
           <div>
             <Logo />
-            <SignIn onRouteChange={this.onRouteChange} />
+            <SignIn
+              loadUser={this.loadUser}
+              onRouteChange={this.onRouteChange}
+            />
+          </div>
+        ) : this.state.route === "register" ? (
+          <div>
+            <Logo />
+            <Register
+              loadUser={this.loadUser}
+              onRouteChange={this.onRouteChange}
+            />
           </div>
         ) : (
           <div>
             <Logo />
-            <Register onRouteChange={this.onRouteChange} />
+            <SignIn
+              loadUser={this.loadUser}
+              onRouteChange={this.onRouteChange}
+            />
           </div>
         )}
       </div>
@@ -83,9 +109,22 @@ class App extends Component {
     this.setState({ imageUrl: this.state.input });
     app.models
       .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-      .then((response) =>
-        this.displayFaceBoxHandler(this.calculateFaceLocationHandler(response))
-      )
+      .then((response) => {
+        if (response) {
+          fetch("http://localhost:3000/image", {
+            method: "put",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: this.state.user.id,
+            }),
+          })
+            .then((res) => res.json())
+            .then((count) => {
+              this.setState({user:{...this.state.user, entries: count}});
+            });
+        }
+        this.displayFaceBoxHandler(this.calculateFaceLocationHandler(response));
+      })
       .catch((err) => console.log(err));
   };
 
@@ -115,6 +154,18 @@ class App extends Component {
       this.setState({ isSignedIn: true });
     }
     this.setState({ route: route });
+  };
+
+  loadUser = (user) => {
+    this.setState({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        entries: user.entries,
+        joined: user.joined,
+      },
+    });
   };
 }
 
